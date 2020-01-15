@@ -1,4 +1,4 @@
-# Alert System based on Facebook Groups
+# Simple Demo for Building Scaling Celery Backend System
 
 ### A high level overview for my current project. All codes are removed since it's not opensourced yet, only for demo purpose.
 
