@@ -29,7 +29,7 @@ pip install -r requirements.txt
 * Official Document: https://docs.celeryproject.org/en/latest/index.html
 
 ## System Architecture
-<img src="https://lnsocial.s3-ap-northeast-1.amazonaws.com/Screenshot+from+2020-01-14+16-33-40.png" width="1024">
+<img src="https://lnsocial.s3-ap-northeast-1.amazonaws.com/Screenshot+from+2020-01-15+17-01-53.png" width="1024">
 
 ## Project Structure
 ```
