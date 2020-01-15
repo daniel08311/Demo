@@ -1,18 +1,20 @@
-# Lndata SII Project - Alert System Based on Facebook Group
+# Alert System based on Facebook Groups
+
+# This is a demo for my current project. Actual code is NOT opensourced. So only the readme file is present
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 ## Prerequisite
 * For local developement
- * Ubuntu 18.04 LTS (any other linux environment should be ok)
- * Python 3.6.9 
+  * Ubuntu 18.04 LTS (any other linux environment should be ok)
+  * Python 3.6.9 
 
 * For container environment
- * Python official image: "python:3.6.9-buster" 
- * Docker 1.13.1
- * Docker-Compose 1.18.0
+  * Python official image: "python:3.6.9-buster" 
+  * Docker 1.13.1
+  * Docker-Compose 1.18.0
 
 * For Cloud Deployment
- * Use CentOS 7.7 (latest CentOS AMI from aws marketplace)
+  * Use CentOS 7.7 (latest CentOS AMI from aws marketplace)
 
 ## Installation
 ```bash
