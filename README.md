@@ -1,21 +1,33 @@
 # Alert System based on Facebook Groups
 
-### This is just a high level overview for my current project. It's not opensourced yet, only readme.md is shown
+### A high level overview for my current project. It's not opensourced yet, only for demo purpose.
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 ## Prerequisite
-* For local developement
-  * Ubuntu 18.04 LTS (any other linux environment should be ok)
-  * Python 3.6.9 
+* **Operating System**
+  * Any Linux environment should be ok for local developement
+  * CentOS 7.7 for production environment
 
-* For container environment
-  * Python official image: "python:3.6.9-buster" 
+* **Python**
+  * 3.6.8 or 3.6.9
+
+* **Docker** (for containerizing our app)
+  * Python official image: "python:3.6.8-buster" or "python:3.6.9-buster" 
   * Docker 1.13.1
   * Docker-Compose 1.18.0
 
-* For Cloud Deployment
-  * Use CentOS 7.7 (latest CentOS AMI from aws marketplace)
+* **MySQL** (where our data lives in)
+  * 5.7 or 8.0
+  * currently using 8.0 for better performance
+
+* **Redis** (act as broker for Celery)
+  * 5.0.7 
+
+* **Cloud Deployment**
+  * Managed AWS services are simple
+  * Swap MySQL for AWS RDS
+  * Swap Redis for AWS Elasticache or SQS
 
 ## Installation
 ```bash
@@ -29,7 +41,13 @@ pip install -r requirements.txt
 * Official Document: https://docs.celeryproject.org/en/latest/index.html
 
 ## System Architecture
-<img src="https://lnsocial.s3-ap-northeast-1.amazonaws.com/Screenshot+from+2020-01-15+17-01-53.png" width="1024">
+* The whole Celery system communicates through the redis broker
+* Celery beat send etl/crawler tasks periodically and workers fetch task from redis
+* Crawled data are structured through SQLAlchemy and stored in RDS
+* Worker logs are real-time streamed by kinesis agent through kinesis firehose and stored in S3 (optional)
+
+<img src="https://lnsocial.s3-ap-northeast-1.amazonaws.com/Screenshot+from+2020-01-15+17-01-53.png" width="1024"></img>
+
 
 ## Project Structure
 ```
@@ -60,11 +78,11 @@ modules/
    * **modules.celery.settings** -> defines all the settings for Celery. Including broker url, result backed url, task schedules...etc
     
    **modules.core** 
-   * contains the core functions of SII backend.
-   * all components except **common** include a task.py which defines all the tasks that will be executed by Celery
+   * contains backend core functions.
+   * all components except **common** include a task.py which defines all the tasks that will be executed by Celery.
    * **modules.core.crawler**  -> crawler component which contains crawler classes and crawler data models
-   * **modules.celery.alert**  -> alert component(not yet impletmented)
-   * **modules.celery.etl**    -> define daily batch calcutlation tasks, including keyword mapping and sii calculation(not yet implemented)
+   * **modules.celery.alert**  -> alert component
+   * **modules.celery.etl**    -> define daily batch calcutlation tasks, including keyword mapping and target calculation
    * **modules.celery.common** -> common files across components, only contains shared data models for now
    
 
@@ -75,21 +93,22 @@ modules/
 celery -A modules.celery.main worker -l info -O fair --autoscale=16,1  
 ```
 * Creates a celery worker which has the ability to autoscale from 1 processes to a maximum of 16 processes.
-* Automatically connects to the broker specified in modules/celery/settings.py
-* -O Fair indicates to use the "fair" optimization (see 2. Use -Ofair for your preforking workers from https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb)
+* Automatically connects to the broker specified in modules/celery/settings.py.
+* -O Fair indicates to use the "fair" optimization (see 2. Use -Ofair for your preforking workers from https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb).
 
 ### Run celery scheduler
 ```bash
 celery -A modules.celery.main beat -l info  
 ```
 * Creates a celery beat process which send task periodically.
-* Automatically connects to the broker specified in modules/celery/settings.py
-* Task schedules are defined in modules/celery/settings.py
+* Automatically connects to the broker specified in modules/celery/settings.py.
+* Task schedules are defined in modules/celery/settings.py.
 
 ### Run celery flower
 ```bash
 celery -A modules.celery.main flower --max-tasks=100000 --purge_offline_workers --port=9999 
 ```
 * Creates a simple web monitor console for celery on port 9999.
-* Automatically connects to the broker specified in modules/celery/settings.py
-* Look at https://flower.readthedocs.io/en/latest/ for more info
+* Automatically connects to the broker specified in modules/celery/settings.py.
+* Look at https://flower.readthedocs.io/en/latest/ for more info.
+
