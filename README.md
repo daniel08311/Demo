@@ -1,6 +1,6 @@
 # Alert System based on Facebook Groups
 
-### A high level overview for my current project. It's not opensourced yet, only for demo purpose.
+### A high level overview for my current project. All codes are removed since it's not opensourced yet, only for demo purpose.
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
