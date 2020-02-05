@@ -40,6 +40,21 @@ pip install -r requirements.txt
 * A Celery system can consist of multiple workers and brokers, giving way to high availability and horizontal scaling.
 * Official Document: https://docs.celeryproject.org/en/latest/index.html
 
+## What is a Task
+* A task is just as simple as a function which is executed by the celery worker. 
+* For example, the following task queries a person from the database, add age and write back to database
+* the @app.task decorator transform the function into a task executable by celery
+```python
+@app.task()
+def simple_etl_job():
+    session = db_session()
+    person = session.query(Person).first()
+    person.age += 1
+    session.merge(person)
+    session.close()
+    return True
+```
+
 ## System Architecture
 * The whole Celery system communicates through the redis broker
 * Celery beat send etl/crawler tasks periodically and workers fetch task from redis
@@ -51,25 +66,47 @@ pip install -r requirements.txt
 
 ## Project Structure
 ```
-modules/ 
-├── celery 
-│   ├── db.py 
-│   ├── main.py 
-│   └── settings.py 
-├── core 
-    ├── alert 
-    ├── common 
-    │   └── models.py 
-    ├── crawler 
-    │   ├── config 
-    │   ├── crawlers 
-    │   ├── models 
-    │   ├── tasks.py 
-    │   ├── test_script.py 
-    │   └── utils 
-    └── etl 
-        ├── config 
-        └── tasks.py 
+modules/
+├── celery
+│   ├── config.ini
+│   ├── db.py
+│   ├── main.py
+│   └── settings.py
+├── core
+│   ├── alert
+│   │   ├── config.ini
+│   │   ├── output_excel_config.json
+│   │   ├── stopwords.txt
+│   │   ├── tasks.py
+│   │   ├── threshold.py
+│   │   ├── utils
+│   │   │   └── mailservice_new.py
+│   │   └── wqy-microhei.ttc
+│   ├── common
+│   │   └── models.py
+│   ├── crawler
+│   │   ├── config
+│   │   │   ├── config.py
+│   │   │   └── config.yaml
+│   │   ├── crawlers
+│   │   │   ├── cookie_crawler.py
+│   │   │   ├── idata_crawler.py
+│   │   │   └── template.py
+│   │   ├── models
+│   │   │   ├── cookie_crawler.py
+│   │   │   └── idata_crawler.py
+│   │   ├── tasks.py
+│   │   ├── test_script.py
+│   │   └── utils
+│   │       ├── dateutils.py
+│   │       └── urlutils.py
+│   └── etl
+│       ├── config
+│       │   ├── config.py
+│       │   └── config.yaml
+│       └── tasks.py
+└── __init__.py
+
 ```
    **modules.celery**
    * contains basic setting files for the Celery framework.
@@ -111,4 +148,45 @@ celery -A modules.celery.main flower --max-tasks=100000 --purge_offline_workers 
 * Creates a simple web monitor console for celery on port 9999.
 * Automatically connects to the broker specified in modules/celery/settings.py.
 * Look at https://flower.readthedocs.io/en/latest/ for more info.
+
+## Containerize
+* Build the docker image 
+
+```bash
+docker build -t dockerhub/imagename:tag .
+```
+
+* Push to our docker hub
+
+```bash
+docker push dockerhub/imagename:tag
+```
+
+* Run container with docker-compose
+```bash
+docker-compose up -d
+```
+* Let's take a look at the following docker-compose file
+
+```yaml
+version: '2.2'
+
+services:
+  sii-worker:
+    image: dockerhub/imagename:tag
+    container_name: worker
+    privileged: false
+    restart: always
+    command: celery -A modules.celery.main worker -O fair --autoscale=32,1 -l warning
+    mem_limit: 3g
+    mem_reservation: 1g
+    volumes:
+      - /tmp/logs/:/app/log:z
+      - /etc/localtime:/etc/localtime:ro
+```
+* This file creates a docker container called **worker** with the image **dockerhub/imagename:tag**
+* The command **celery -A modules.celery.main worker -O fair --autoscale=32,1 -l warning** will be executed once the container is up
+* The container will try to restart whenever it shuts down or when ec2 starts or reboots since the flag **restart** is set to **always **
+* 1GB memory is reserved while the limit is 3GB 
+* Mount the generated logs to the system's /tmp/logs folder for streaming into S3
 
