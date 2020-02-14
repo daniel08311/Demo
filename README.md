@@ -65,46 +65,47 @@ def simple_etl_job():
 
 
 ## Project Structure
-```
+```bash
 modules/
 ├── celery
-│   ├── config.ini
-│   ├── db.py
-│   ├── main.py
-│   └── settings.py
+│   ├── config.ini
+│   ├── db.py
+│   ├── main.py
+│   └── settings.py
 ├── core
-│   ├── alert
-│   │   ├── config.ini
-│   │   ├── output_excel_config.json
-│   │   ├── stopwords.txt
-│   │   ├── tasks.py
-│   │   ├── threshold.py
-│   │   ├── utils
-│   │   │   └── mailservice_new.py
-│   │   └── wqy-microhei.ttc
-│   ├── common
-│   │   └── models.py
-│   ├── crawler
-│   │   ├── config
-│   │   │   ├── config.py
-│   │   │   └── config.yaml
-│   │   ├── crawlers
-│   │   │   ├── cookie_crawler.py
-│   │   │   ├── idata_crawler.py
-│   │   │   └── template.py
-│   │   ├── models
-│   │   │   ├── cookie_crawler.py
-│   │   │   └── idata_crawler.py
-│   │   ├── tasks.py
-│   │   ├── test_script.py
-│   │   └── utils
-│   │       ├── dateutils.py
-│   │       └── urlutils.py
-│   └── etl
-│       ├── config
-│       │   ├── config.py
-│       │   └── config.yaml
-│       └── tasks.py
+│   ├── alert
+│   │   ├── config.ini
+│   │   ├── stopwords.txt
+│   │   ├── tasks.py
+│   │   ├── utils
+│   │   │   ├── image_generator.py
+│   │   │   └── mailservice_new.py
+│   │   └── wqy-microhei.ttc
+│   ├── common
+│   │   └── models.py
+│   ├── crawler
+│   │   ├── config
+│   │   │   ├── config.py
+│   │   │   └── config.yaml
+│   │   ├── crawlers
+│   │   │   ├── cookie_crawler.py
+│   │   │   ├── idata_crawler.py
+│   │   │   └── template.py
+│   │   ├── models
+│   │   │   ├── cookie_crawler.py
+│   │   │   └── idata_crawler.py
+│   │   ├── tasks.py
+│   │   ├── test_script.py
+│   │   └── utils
+│   │       ├── dateutils.py
+│   │       └── urlutils.py
+│   └── etl
+│       ├── config
+│       │   ├── config.py
+│       │   └── config.yaml
+│       ├── tasks.py
+│       └── utils
+│           └── threshold_finder.py
 └── __init__.py
 
 ```
